@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOD Mining Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="DOD Logo" class="logo">
+        <h1>Welcome to DOD Mining</h1>
+        <p id="status">Initializing...</p>
+
+        <div class="buttons">
+            <button onclick="mine()">🪙 Tap to Mine</button>
+            <button onclick="upgrade()">⚡ Upgrade</button>
+            <button onclick="spin()">🎰 Spin</button>
+            <button onclick="airdrop()">🎁 Airdrop</button>
+            <button onclick="getReferral()">📢 Referral</button>
+            <button onclick="sendTon()">💸 TON Transaction</button>
+        </div>
+
+        <p>Balance: <span id="balance">0</span> DOD</p>
+        <p>Referred By: <span id="referred_by">None</span></p>
+    </div>
+
+    <script>
+        let userId = Math.floor(Math.random() * 1000000); // temp mock user ID
+        let userName = "User" + userId;
+
+        fetch('/init_user', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ user_id: userId, name: userName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('status').textContent = data.message;
+            document.getElementById('balance').textContent = data.balance;
+            document.getElementById('referred_by').textContent = data.referred_by || 'None';
+        });
+
+        function updateBalance(data) {
+            alert(data.message);
+            document.getElementById('balance').textContent = data.balance;
+        }
+
+        function mine() {
+            fetch('/tap', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId })
+            }).then(res => res.json()).then(updateBalance);
+        }
+
+        function upgrade() {
+            fetch('/upgrade', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId })
+            }).then(res => res.json()).then(updateBalance);
+        }
+
+        function spin() {
+            fetch('/spin', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId })
+            }).then(res => res.json()).then(updateBalance);
+        }
+
+        function airdrop() {
+            fetch('/airdrop', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId })
+            }).then(res => res.json()).then(updateBalance);
+        }
+
+        function getReferral() {
+            fetch('/generate_referral', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId })
+            }).then(res => res.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+
+        async function sendTon() {
+            try {
+                const connector = new TON_CONNECT.TonConnect();
+                const result = await connector.sendTransaction({
+                    messages: [{
+                        address: 'UQAL6w9kbYSioAM_jXk91CXt6Akdam8j88C6LxdYBa-Z7nrH',
+                        amount: '1000000', // 0.001 TON in nanotons
+                        payload: ''
+                    }],
+                    validUntil: Math.floor(Date.now() / 1000) + 60
+                });
+                alert("Transaction successful!");
+            } catch (err) {
+                alert("Transaction failed: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
